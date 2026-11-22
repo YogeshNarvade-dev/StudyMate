@@ -18,6 +18,7 @@ StudyMate is a student-powered learning library: students find and download shar
 - Resource categories for PDFs, question papers, presentations, books, courses and practice material
 - Student resource requests, community upvotes and admin-managed request statuses
 - Personal bookmarks and one-to-five-star resource ratings
+- A study assistant that finds answers in uploaded PDFs, PowerPoint, Word and EPUB resources and cites the source material
 - Student registration/login and administrator endpoints
 - MySQL persistence and local file storage; video files are not hosted by StudyMate
 
@@ -53,6 +54,12 @@ mvn spring-boot:run
 
 The local defaults use `root` / `rootpass` and `localhost:3307`, matching the StudyMate datasource configured in the backend IDE project. If your MySQL server uses other credentials or a different port, override them with `DB_URL`, `DB_USERNAME` and `DB_PASSWORD`. Docker Compose exposes its MySQL service on host port 3307; the backend container reaches it internally at `mysql:3306`. Other settings can use `JWT_SECRET`, `UPLOAD_DIR` or `CORS_ORIGINS`.
 
+### Study assistant
+
+StudyMate extracts searchable text from uploaded study files and shows the matching passages as citations. Existing files are indexed the first time the assistant is used. External video links and image-only scans do not provide searchable document text.
+
+The assistant works without an AI API key by returning the closest matching passages. To get concise, synthesized answers, set `OPENAI_API_KEY` for the backend. When configured, the assistant sends only the selected excerpts and recent chat turns to the configured model endpoint. Set `ASSISTANT_MODEL` (default `gpt-4o-mini`) or `ASSISTANT_API_URL` to use another compatible model service. Keep the API key on the backend; never put it in the frontend.
+
 Start the frontend from `frontend/`:
 
 ```bash
@@ -73,6 +80,7 @@ All endpoints are under `/api`.
 
 ### Resources
 
+- `POST /assistant/ask` — authenticated resource-grounded question with cited source excerpts
 - `GET /resources?query=&course=&semester=&subject=&category=&type=` — public discovery
 - `GET /resources/{id}` and `GET /resources/{id}/download` — public details and downloads
 - `POST /resources` — authenticated multipart upload with `title`, `description`, `course`, `semester`, `subject`, `category`, `type`, and either `file` or `externalUrl` for `EXTERNAL_VIDEO`

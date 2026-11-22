@@ -1,4 +1,4 @@
-import { useDeferredValue, useEffect, useMemo, useState } from 'react'
+import { useDeferredValue, useEffect, useMemo, useRef, useState } from 'react'
 import { api, messageFrom } from './api.js'
 
 const resourceTypes = [
@@ -103,6 +103,7 @@ function App() {
         <nav className="main-nav" aria-label="Main navigation">
           <button className={view === 'discover' ? 'nav-link active' : 'nav-link'} onClick={() => switchView('discover')}>Discover</button>
           <button className={view === 'requests' ? 'nav-link active' : 'nav-link'} onClick={() => switchView('requests')}>Requests</button>
+          <button className={view === 'assistant' ? 'nav-link active' : 'nav-link'} onClick={() => switchView('assistant')}><i className="bi bi-stars" /> Study bot</button>
           {session && <button className={view === 'upload' ? 'nav-link active' : 'nav-link'} onClick={() => switchView('upload')}>Share a resource</button>}
           {session && <button className={view === 'library' ? 'nav-link active' : 'nav-link'} onClick={() => switchView('library')}>My library</button>}
         </nav>
@@ -140,6 +141,7 @@ function App() {
           session={session} isAdmin={isAdmin} onAction={runAction} onSignIn={() => switchView('auth')}
           onRefresh={() => setRefreshKey((key) => key + 1)} onUpload={() => switchView('upload')}
         />}
+        {view === 'assistant' && <AssistantView session={session} onSignIn={() => switchView('auth')} />}
         {view === 'auth' && <AuthView onSuccess={(user) => {
           localStorage.setItem('studymate-session', JSON.stringify(user))
           setSession(user)
@@ -304,6 +306,73 @@ function LibraryView({ resources, loading, libraryView, setLibraryView, session,
     <div className="section-heading"><div><div className="eyebrow eyebrow-muted">YOUR STUDY SPACE</div><h2>My <em>library.</em></h2><p>Your contributions and the resources you want to keep close.</p></div><button className="button button-lime" onClick={onUpload}>Share a resource <i className="bi bi-plus-lg" /></button></div>
     <div className="library-tabs"><button className={libraryView === 'uploads' ? 'library-tab active' : 'library-tab'} onClick={() => setLibraryView('uploads')}><i className="bi bi-cloud-upload" /> My uploads</button><button className={libraryView === 'bookmarks' ? 'library-tab active' : 'library-tab'} onClick={() => setLibraryView('bookmarks')}><i className="bi bi-bookmark-heart" /> Saved resources</button></div>
     {loading ? <LoadingState /> : resources.length ? <div className="resource-grid">{resources.map((resource) => <ResourceCard key={resource.id} resource={resource} session={session} isAdmin={isAdmin} onSignIn={onSignIn} onAction={onAction} onRefresh={onRefresh} />)}</div> : <EmptyState icon={libraryView === 'uploads' ? 'bi-cloud-arrow-up' : 'bi-bookmark-heart'} title={libraryView === 'uploads' ? 'Your uploads will show up here' : 'Nothing saved yet'} detail={libraryView === 'uploads' ? 'Share a set of notes or a guide with your classmates.' : 'Bookmark a resource and it will be easy to find later.'} />}
+  </section>
+}
+
+function AssistantView({ session, onSignIn }) {
+  const [messages, setMessages] = useState([
+    { role: 'assistant', content: 'Hi! Ask me about a topic in the StudyMate library. I’ll look through the uploaded notes and show you where I found the answer.' },
+  ])
+  const [question, setQuestion] = useState('')
+  const [sending, setSending] = useState(false)
+  const [error, setError] = useState('')
+  const endRef = useRef(null)
+
+  useEffect(() => { endRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' }) }, [messages, sending])
+
+  const downloadSource = async (source) => {
+    try {
+      const { data } = await api.get(`/resources/${source.resourceId}/download`, { responseType: 'blob' })
+      const url = URL.createObjectURL(data)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = source.originalFilename || `${source.title}.pdf`
+      link.click()
+      URL.revokeObjectURL(url)
+    } catch (err) { setError(messageFrom(err)) }
+  }
+
+  const ask = async (event, suggestedQuestion) => {
+    event?.preventDefault()
+    if (!session) { onSignIn(); return }
+    const text = (suggestedQuestion ?? question).trim()
+    if (!text || sending) return
+    const history = messages.slice(-8).map(({ role, content }) => ({ role, content: content.slice(0, 1000) }))
+    setMessages((current) => [...current, { role: 'user', content: text }])
+    setQuestion('')
+    setError('')
+    setSending(true)
+    try {
+      const { data } = await api.post('/assistant/ask', { question: text, history })
+      setMessages((current) => [...current, { role: 'assistant', content: data.answer, sources: data.sources || [] }])
+    } catch (err) {
+      setError(messageFrom(err))
+    } finally { setSending(false) }
+  }
+
+  return <section className="content-section page-section assistant-page">
+    <div className="section-heading">
+      <div><div className="eyebrow eyebrow-muted">YOUR STUDY COMPANION</div><h2>Ask your <em>resources.</em></h2><p>Get help finding explanations in the notes and study files shared with StudyMate.</p></div>
+      <span className="assistant-status"><i className="bi bi-shield-check" /> Library grounded</span>
+    </div>
+    {!session ? <div className="assistant-signin"><span className="assistant-mark"><i className="bi bi-stars" /></span><h3>Sign in to ask a question</h3><p>The assistant uses StudyMate’s uploaded study files and includes the sources it finds.</p><button className="button button-dark" onClick={onSignIn}>Sign in <i className="bi bi-arrow-up-right" /></button></div> : <div className="assistant-card">
+      <div className="assistant-messages" aria-live="polite">
+        {messages.map((message, index) => <article className={`chat-message ${message.role}`} key={`${index}-${message.role}`}>
+          <span className="chat-avatar"><i className={`bi ${message.role === 'assistant' ? 'bi-stars' : 'bi-person'}`} /></span>
+          <div className="chat-body"><div className="chat-bubble">{message.content}</div>
+            {message.sources?.length > 0 && <div className="source-list"><small>FOUND IN</small>{message.sources.map((source) => <div className="source-card" key={source.resourceId}>
+              <div><span className="source-label">{source.sourceId}</span><b>{source.title}</b><small>{source.course} · {source.subject}{source.originalFilename ? ` · ${source.originalFilename}` : ''}</small><p>{source.excerpt}</p><button className="source-download" onClick={() => downloadSource(source)}><i className="bi bi-download" /> Open source file</button></div>
+            </div>)}</div>}
+          </div>
+        </article>)}
+        {sending && <article className="chat-message assistant"><span className="chat-avatar"><i className="bi bi-stars" /></span><div className="chat-bubble typing"><span /><span /><span /></div></article>}
+        <div ref={endRef} />
+      </div>
+      {!messages.some((message) => message.role === 'user') && <div className="suggested-questions"><span>TRY ASKING</span>{['Explain recursion', 'What should I revise for exams?', 'Summarize the main ideas'].map((suggestion) => <button key={suggestion} disabled={sending} onClick={(event) => ask(event, suggestion)}>{suggestion}<i className="bi bi-arrow-up-right" /></button>)}</div>}
+      {error && <div className="assistant-error" role="alert">{error}</div>}
+      <form className="assistant-composer" onSubmit={ask}><label className="sr-only" htmlFor="assistant-question">Ask about your study resources</label><textarea id="assistant-question" value={question} onChange={(event) => setQuestion(event.target.value)} onKeyDown={(event) => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); ask(event) } }} maxLength={1000} placeholder="Ask a question about your study resources…" disabled={sending} /><button className="button button-dark" disabled={sending || !question.trim()} aria-label="Send question">{sending ? 'Looking…' : 'Ask'} <i className="bi bi-arrow-up-right" /></button></form>
+      <p className="assistant-privacy"><i className="bi bi-info-circle" /> StudyMate searches uploaded files. If an AI service is configured, selected passages are sent to it to write the answer.</p>
+    </div>}
   </section>
 }
 

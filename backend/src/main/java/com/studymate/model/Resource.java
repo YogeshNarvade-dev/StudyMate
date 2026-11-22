@@ -32,6 +32,8 @@ public class Resource {
     private ResourceType resourceType = ResourceType.PDF;
     @Column(length = 1200)
     private String externalUrl;
+    @Column(name = "extracted_text", columnDefinition = "MEDIUMTEXT")
+    private String extractedText;
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "uploaded_by_id")
     private User uploadedBy;
@@ -52,6 +54,7 @@ public class Resource {
     public long getFileSize() { return fileSize; }
     public ResourceType getResourceType() { return resourceType; }
     public String getExternalUrl() { return externalUrl; }
+    public String getExtractedText() { return extractedText; }
     public User getUploadedBy() { return uploadedBy; }
     public LocalDateTime getUploadedAt() { return uploadedAt; }
     public long getDownloadCount() { return downloadCount; }
@@ -66,6 +69,7 @@ public class Resource {
     public void setFileSize(long v) { fileSize = v; }
     public void setResourceType(ResourceType v) { resourceType = v; }
     public void setExternalUrl(String v) { externalUrl = v; }
+    public void setExtractedText(String v) { extractedText = v; }
     public void setUploadedBy(User v) { uploadedBy = v; }
     public void setUploadedAt(LocalDateTime v) { uploadedAt = v; }
     public void incrementDownloadCount() { downloadCount++; }

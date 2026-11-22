@@ -23,6 +23,9 @@ services:
       JWT_SECRET: change-this-development-secret-to-a-long-random-string-123456
       UPLOAD_DIR: /app/uploads
       CORS_ORIGINS: http://localhost:5173
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      ASSISTANT_API_URL: ${ASSISTANT_API_URL:-https://api.openai.com/v1/chat/completions}
+      ASSISTANT_MODEL: ${ASSISTANT_MODEL:-gpt-4o-mini}
     ports:
       - "8080:8080"
     volumes:

@@ -145,6 +145,47 @@ h1, h2, h3, p { margin-top: 0; }
 @keyframes spin { to { transform: rotate(360deg); } }
 .footer { display: flex; justify-content: space-between; gap: 18px; padding: 20px max(5vw, calc((100vw - 1180px) / 2)); border-top: 1px solid #e9ece4; color: #889288; background: #fff; font-size: 10px; }
 .footer span:first-child { color: #516653; font-weight: 700; }
+.assistant-page { min-height: calc(100vh - 160px); }
+.assistant-status { display: inline-flex; align-items: center; gap: 7px; padding: 9px 12px; border: 1px solid #dfe9d7; border-radius: 20px; background: #f4f8ed; color: #60804f; font-size: 10px; font-weight: 700; }
+.assistant-card { max-width: 850px; overflow: hidden; border: 1px solid #e5e9df; border-radius: 13px; background: #fff; box-shadow: 0 12px 35px #2337280a; }
+.assistant-messages { display: grid; gap: 19px; max-height: 510px; min-height: 270px; overflow-y: auto; padding: 24px; }
+.chat-message { display: flex; align-items: flex-start; gap: 10px; }
+.chat-message.user { flex-direction: row-reverse; }
+.chat-avatar, .assistant-mark { display: grid; flex: none; place-items: center; width: 32px; height: 32px; border-radius: 11px; background: #edf4e4; color: #66874c; font-size: 14px; }
+.chat-message.user .chat-avatar { background: #e9eee8; color: #64756a; }
+.chat-body { max-width: min(660px, calc(100% - 43px)); }
+.chat-bubble { padding: 13px 16px; border: 1px solid #e9ede5; border-radius: 4px 13px 13px 13px; background: #fbfcf9; color: #46564a; font-size: 12px; line-height: 1.75; white-space: pre-wrap; overflow-wrap: anywhere; }
+.chat-message.user .chat-bubble { border-color: #e3ecd9; border-radius: 13px 4px 13px 13px; background: #f0f5e8; }
+.source-list { display: grid; gap: 8px; margin-top: 11px; }
+.source-list > small, .suggested-questions > span { color: #929c91; font-size: 9px; font-weight: 700; letter-spacing: 1.2px; }
+.source-card { padding: 11px 13px; border: 1px solid #e8ece3; border-radius: 8px; background: #fff; }
+.source-card b, .source-card small { display: block; }
+.source-card b { margin: 5px 0 3px; color: #415646; font-size: 11px; }
+.source-card small { color: #8a958a; font-size: 9px; }
+.source-label { display: inline-grid; place-items: center; min-width: 27px; height: 19px; padding: 0 5px; border-radius: 5px; background: #edf3e5; color: #60804f; font-size: 9px; font-weight: 700; }
+.source-card p { margin: 8px 0 0; color: #6d796f; font-size: 10px; line-height: 1.6; white-space: pre-wrap; }
+.source-download { display: inline-flex; align-items: center; gap: 6px; margin-top: 9px; padding: 0; border: 0; background: none; color: #52764b; font-size: 9px; font-weight: 700; }
+.source-download:hover { text-decoration: underline; }
+.typing { display: flex; gap: 4px; padding: 16px; }
+.typing span { width: 6px; height: 6px; border-radius: 50%; background: #91a580; animation: typing 1s infinite ease-in-out; }
+.typing span:nth-child(2) { animation-delay: .15s; }
+.typing span:nth-child(3) { animation-delay: .3s; }
+@keyframes typing { 50% { opacity: .35; transform: translateY(-3px); } }
+.suggested-questions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 0 24px 18px 66px; }
+.suggested-questions > span { width: 100%; }
+.suggested-questions button { display: inline-flex; align-items: center; gap: 8px; padding: 8px 11px; border: 1px solid #e4e9df; border-radius: 20px; background: #fff; color: #617263; font-size: 10px; }
+.suggested-questions button:hover:not(:disabled) { border-color: #bdd0ad; background: #f6f9f1; }
+.assistant-composer { display: flex; align-items: flex-end; gap: 10px; margin: 0 19px; padding: 12px 0; border-top: 1px solid #edf0e9; }
+.assistant-composer textarea { flex: 1; min-height: 46px; max-height: 130px; padding: 13px 14px; border: 1px solid #e1e7dc; border-radius: 8px; outline: none; color: #3d4d41; font-size: 11px; line-height: 1.5; resize: vertical; }
+.assistant-composer textarea:focus { border-color: #a6bd91; box-shadow: 0 0 0 3px #eef4e8; }
+.assistant-composer .button { min-height: 45px; }
+.assistant-privacy { display: flex; gap: 7px; align-items: flex-start; margin: 0; padding: 0 20px 14px; color: #929c91; font-size: 9px; line-height: 1.5; }
+.assistant-privacy i { flex: none; color: #789264; }
+.assistant-error { margin: 0 20px 10px; padding: 9px 11px; border-radius: 6px; background: #fff2ee; color: #a65345; font-size: 10px; }
+.assistant-signin { max-width: 520px; margin: 0 auto; padding: 48px 28px; border: 1px solid #e6ebe2; border-radius: 12px; background: #fff; text-align: center; }
+.assistant-signin .assistant-mark { width: 48px; height: 48px; margin: 0 auto 16px; border-radius: 15px; font-size: 19px; }
+.assistant-signin h3 { margin-bottom: 8px; color: #3d5142; font-family: var(--serif); font-size: 24px; font-weight: 400; }
+.assistant-signin p { margin: 0 auto 19px; color: #808b81; font-size: 11px; line-height: 1.7; }
 .request-search { max-width: 510px; margin-bottom: 22px; }
 .request-list { display: grid; gap: 13px; }
 .request-card { display: grid; grid-template-columns: 63px 1fr auto; gap: 20px; align-items: start; padding: 21px; border: 1px solid #e7ebe1; border-radius: 10px; background: #fff; }
@@ -232,7 +273,8 @@ h1, h2, h3, p { margin-top: 0; }
   .account-area { margin-bottom: 12px; }
   .user-greeting > span:last-child { display: none; }
   .main-nav { order: 3; width: calc(100% + 34px); gap: 0; justify-content: space-around; margin: 0 -17px; border-top: 1px solid #eef0ea; }
-  .nav-link { padding: 13px 7px; font-size: 10px; }
+  .nav-link { padding: 13px 4px; font-size: 9px; }
+  .nav-link i { display: none; }
   .button-small { min-height: 34px; padding: 0 11px; }
   .hero { display: block; min-height: 745px; padding: 50px 25px 83px; }
   .hero-copy { max-width: 470px; }
@@ -259,6 +301,11 @@ h1, h2, h3, p { margin-top: 0; }
   .resource-grid { grid-template-columns: 1fr; }
   .resource-card { min-height: 285px; }
   .footer { flex-direction: column; gap: 7px; padding: 17px; }
+  .assistant-messages { max-height: 56vh; min-height: 250px; padding: 16px 12px; }
+  .assistant-composer { margin: 0 12px; }
+  .assistant-composer .button { padding: 0 12px; }
+  .assistant-privacy { padding-right: 12px; padding-left: 12px; }
+  .suggested-questions { padding: 0 12px 15px 54px; }
   .request-card { grid-template-columns: 45px 1fr; gap: 12px; padding: 15px; }
   .request-vote { grid-row: span 2; }
   .request-content { grid-column: 2; }

@@ -28,3 +28,8 @@ app:
 
   cors:
     origins: ${CORS_ORIGINS:http://localhost:5173}
+
+  assistant:
+    api-key: ${OPENAI_API_KEY:}
+    api-url: ${ASSISTANT_API_URL:https://api.openai.com/v1/chat/completions}
+    model: ${ASSISTANT_MODEL:gpt-4o-mini}

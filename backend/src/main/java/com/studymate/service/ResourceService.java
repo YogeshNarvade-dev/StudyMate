@@ -36,17 +36,20 @@ public class ResourceService {
     private final UserRepository users;
     private final ResourceBookmarkRepository bookmarks;
     private final ResourceRatingRepository ratings;
+    private final DocumentTextExtractor textExtractor;
     private final Path uploadPath;
     private final long maxFileSize;
 
     public ResourceService(ResourceRepository resources, UserRepository users,
             ResourceBookmarkRepository bookmarks, ResourceRatingRepository ratings,
+            DocumentTextExtractor textExtractor,
             @Value("${app.upload.dir}") String uploadDir,
             @Value("${app.upload.max-file-size}") long maxFileSize) throws IOException {
         this.resources = resources;
         this.users = users;
         this.bookmarks = bookmarks;
         this.ratings = ratings;
+        this.textExtractor = textExtractor;
         this.uploadPath = Paths.get(uploadDir).toAbsolutePath().normalize();
         this.maxFileSize = maxFileSize;
         Files.createDirectories(this.uploadPath);
@@ -152,6 +155,7 @@ public class ResourceService {
             resource.setStoredFilename(stored);
             resource.setOriginalFilename(original);
             resource.setFileSize(file.getSize());
+            resource.setExtractedText(textExtractor.extract(destination));
         }
 
         try {
